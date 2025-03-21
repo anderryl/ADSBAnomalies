@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 from bincraft import *
-from src.adsblookup.utils import find_airports
+from utils import find_airports
 
 
 def pull_trace_raw(icao: str, recent: bool = False, verbose=False):

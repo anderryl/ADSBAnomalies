@@ -1,5 +1,5 @@
-from src.adsblookup import *
-from src.adsblookup.utils import pull_airport, find_airports
+from bincraft import pull_snapshot
+from utils import pull_airport, find_airports
 
 def extract(acs):
     return [
