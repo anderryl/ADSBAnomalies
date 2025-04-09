@@ -2,7 +2,10 @@
 
 from bincraft import *
 from utils import find_airports
+import os
 
+path = os.environ['FLIGHTS_PATH'] if 'FLIGHTS_PATH' in os.environ else None
+path = "" if path is None else path
 
 def pull_trace_raw(icao: str, recent: bool = False, verbose=False):
     """Pull raw JSON data from adsbexchange.com.
@@ -82,7 +85,7 @@ def update(tlat, tlon, output):
     if len(frames) == 0:
         print("Not enough data")
         exit(0)
-    file = open("./" + output + ".csv", "a")
+    file = open(path + "./" + output + ".csv", "a")
     for frame in frames:
         for item in frame:
             file.write(str(item) + ",")
