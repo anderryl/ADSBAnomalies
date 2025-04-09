@@ -22,10 +22,10 @@ def pull_airport(ident, airports):
 def find_airports(preset=[]):
     lines = preset
     if preset == []:
-        file = open(path + "./" + "airports.txt")
+        file = open(path + "airports.txt")
         lines = [line for line in file.read().split("\n") if len(line) > 0]
         file.close()
-    file = open(path + "./" + "database.csv")
+    file = open(path + "database.csv")
     airports = [[part for part in line.split(",") if len(part) > 0] for line in file.read().split("\n") if len(line) > 0]
     molded = []
     for airport in airports:
@@ -42,11 +42,11 @@ def find_airports(preset=[]):
 def build_database():
     locs = [
         [part[1:-1] for part in line.split(",") if len(part) > 0]
-        for line in open(path + "./" + "airports.csv").read().split("\n") if len(line) > 0
+        for line in open(path + "airports.csv").read().split("\n") if len(line) > 0
     ]
     filtered = [[loc[3], loc[5], loc[6]] for loc in locs]
     ordered = sorted(filtered, key=lambda x: x[0])
-    file = open(path + "./" + "database.csv", "w")
+    file = open(path + "database.csv", "w")
     for order in ordered:
         for part in order:
             file.write(part + ",")

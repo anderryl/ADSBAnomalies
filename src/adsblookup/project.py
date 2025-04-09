@@ -85,7 +85,7 @@ def update(tlat, tlon, output):
     if len(frames) == 0:
         print("Not enough data")
         exit(0)
-    file = open(path + "./" + output + ".csv", "a")
+    file = open(path + output + ".csv", "a")
     for frame in frames:
         for item in frame:
             file.write(str(item) + ",")
