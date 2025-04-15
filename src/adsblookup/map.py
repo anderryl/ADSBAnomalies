@@ -1,12 +1,12 @@
-import os
-os.environ["QT_QPA_PLATFORM_PLUGIN_PATH"] = os.path.join(
-    os.path.dirname(__file__),
-    "..", ".venv", "lib", "python3.9", "site-packages", "PyQt5", "Qt5", "plugins", "platforms"
-)
 import sys
 import pandas as pd
+import numpy as np
 import geopandas as gpd
 import matplotlib.pyplot as plt
+from matplotlib import animation
+from pyod.models.iforest import IForest
+
+from bincraft import *
 
 # os.environ["QT_QPA_PLATFORM_PLUGIN_PATH"] = os.path.join(
 #     os.path.dirname(__file__),
@@ -84,13 +84,48 @@ class MainWindow(QMainWindow):
         self.flight_map = FlightMap(flights, self)
         self.setCentralWidget(self.flight_map)
 
+
 if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    flights = [
-        {'ID': 'AO55', 'latitude': 37.7749, 'longitude': -122.4194, 'altitude': 3600, 'gradient': -50}, # San Francisco
-        {'ID': "GE43", 'latitude': 34.0522, 'longitude': -118.2437, 'altitude': 4700, 'gradient': 0}, # Los Angeles
-        {'ID': "DZ68", 'latitude': 40.7128, 'longitude': -74.0060, 'altitude': 5000, 'gradient': 25} # New York
+
+    lat = 38.8058
+    latr = lat / 57.3
+    lon = -104.701
+    range = 25
+
+    fig, ax = plt.subplots()
+    #plt.show()
+    limits = [lat - range / 60, lat + range / 60, lon - range / math.cos(latr), lon + range / math.cos(latr)]
+    ax.set_xlim(limits[2], limits[3])
+    ax.set_ylim(limits[0], limits[1])
+    file = open("KCOS.csv")
+    frames = file.read()
+    file.close()
+    frames = [np.array([float(col) for col in row.split(",") if len(col) > 0]) for row in frames.strip().split("\n")]
+    frames = [frame for frame in frames if frame[2] < 20000]
+    x = np.array(frames)
+    forest = IForest(max_samples=len(x))
+    forest.fit(x)
+
+    while True:
+        ax.clear()
+        snap = pull_snapshot(limits)
+        states = [
+            [
+                #state["hex"],
+                state["lat"],
+                state["lon"],
+                (state["alt_baro"] if state["alt_baro"] != "ground" else 0),
+                60 * (0 if state["baro_rate"] is None else state["baro_rate"]) / state["gs"]
+            ]
+            for state in snap.aircraft
+            if state["category"] in ["A3", "A4", "A5"] and (state["gs"] or 1) > 50 and
+               ((state["lat"] or 1) - lat) ** 2 + (((state["lon"] or 1) - lon) / math.cos(latr)) ** 2 < (
+                           range / 60) ** 2
         ]
-    window = MainWindow(flights)
-    window.show()
-    sys.exit(app.exec_())
+        ys = [state[0] for state in states]
+        xs = [state[1] for state in states]
+        outliers = forest.predict(np.array(states))
+        print(outliers)
+        ax.scatter(xs, ys, c=outliers, cmap="coolwarm")
+        # Note that using time.sleep does *not* work here!
+        plt.pause(0.1)
