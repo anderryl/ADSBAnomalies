@@ -13,10 +13,14 @@ def pull_airport(ident, airports):
         midpoint = int((minim + maxim) / 2)
         real = airports[midpoint][0]
         if ident < real:
+
             maxim = midpoint - 1
         if ident > real:
+
             minim = midpoint + 1
-    return airports[midpoint]
+        if ident == real:
+            maxim = midpoint
+    return airports[maxim]
 
 
 def find_airports(preset=[]):

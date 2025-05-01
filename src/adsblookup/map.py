@@ -3,18 +3,16 @@ import pandas as pd
 import numpy as np
 import geopandas as gpd
 import matplotlib.pyplot as plt
-from matplotlib import animation
 from pyod.models.iforest import IForest
 
 from bincraft import *
 
-# os.environ["QT_QPA_PLATFORM_PLUGIN_PATH"] = os.path.join(
-#     os.path.dirname(__file__),
-#     "..", ".venv", "lib", "python3.9", "site-packages", "PyQt5", "Qt5", "plugins", "platforms"
-# )
-
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QLabel
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+
+
+
+
 
 
 class FlightMap(QWidget):
@@ -94,9 +92,7 @@ if __name__ == "__main__":
 
     fig, ax = plt.subplots()
     #plt.show()
-    limits = [lat - range / 60, lat + range / 60, lon - range / math.cos(latr), lon + range / math.cos(latr)]
-    ax.set_xlim(limits[2], limits[3])
-    ax.set_ylim(limits[0], limits[1])
+    limits = [lat - range / 60, lat + range / 60, lon - (range / 60) / math.cos(latr), lon + (range / 60) / math.cos(latr)]
     file = open("KCOS.csv")
     frames = file.read()
     file.close()
@@ -124,8 +120,10 @@ if __name__ == "__main__":
         ]
         ys = [state[0] for state in states]
         xs = [state[1] for state in states]
-        outliers = forest.predict(np.array(states))
+        outliers = forest.predict(np.array(states)) if len(states) > 0 else []
         print(outliers)
         ax.scatter(xs, ys, c=outliers, cmap="coolwarm")
+        ax.set_xlim(limits[2], limits[3])
+        ax.set_ylim(limits[0], limits[1])
         # Note that using time.sleep does *not* work here!
         plt.pause(0.1)

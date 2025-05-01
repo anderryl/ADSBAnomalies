@@ -86,7 +86,7 @@ def update(tlat, tlon, output):
         ][::downsampling]
     if len(frames) == 0:
         print("Not enough data")
-        exit(0)
+        return
     file = open(path + output + ".csv", "a")
     for frame in frames:
         for item in frame:
