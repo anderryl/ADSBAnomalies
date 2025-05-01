@@ -3,9 +3,11 @@
 from bincraft import *
 from utils import find_airports
 import os
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
 
-path = os.environ['FLIGHTS_PATH'] if 'FLIGHTS_PATH' in os.environ else None
-path = "" if path is None else path
+path = os.environ['FLIGHTS_PATH'] if 'FLIGHTS_PATH' in os.environ else ""
+
 
 def pull_trace_raw(icao: str, recent: bool = False, verbose=False):
     """Pull raw JSON data from adsbexchange.com.
@@ -94,9 +96,15 @@ def update(tlat, tlon, output):
     print(output + " updated with " + str(len(frames)) + " frames...")
 
 
+
+
+
+
 if __name__ == '__main__':
     for name, lat, long in find_airports():
         update(lat, long, name)
+
+
     """
     print("Frames: ", len(frames), "Aircraft: ", len(acs))
     x = np.array(frames)
